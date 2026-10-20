@@ -67,7 +67,15 @@ class Simply_GitHub_Updater {
 		}
 
 		$release = $this->get_release();
-		if ( ! $release || ! version_compare( $release->version, $this->version, '>' ) ) return;
+		if ( ! $release || ! version_compare( $release->version, $this->version, '>' ) ) {
+			$option_key = $this->type === 'plugin' ? 'update_plugins' : 'update_themes';
+			$transient  = get_site_transient( $option_key );
+			if ( is_object( $transient ) && isset( $transient->response[ $this->slug ] ) ) {
+				unset( $transient->response[ $this->slug ] );
+				set_site_transient( $option_key, $transient );
+			}
+			return;
+		}
 
 		$option_key = $this->type === 'plugin' ? 'update_plugins' : 'update_themes';
 		$transient  = get_site_transient( $option_key );
